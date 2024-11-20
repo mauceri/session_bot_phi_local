@@ -24,7 +24,7 @@ class Phi(IObserver):
         os.makedirs(self.data_dir, exist_ok=True)
         db_path = os.path.join(self.data_dir, 'test_context.sqlite')
         
-        logger.info(f"********************** Répertoire de données du plugin : {self.phi.data_dir}")
+        logger.info(f"********************** Répertoire de données du plugin : {self.data_dir}")
  
         self.sqliteh = SQLiteHandler(db_path=db_path)
         self.il = InterrogationLocale(self.sqliteh.db_path)
