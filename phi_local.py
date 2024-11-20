@@ -1,9 +1,9 @@
 import logging
 import os
 import time
-from .interfaces import IObserver, IObservable, IPlugin
-from .sqlite_handler import SQLiteHandler
-from .interrogationLocale import InterrogationLocale
+from interfaces import IObserver, IObservable, IPlugin
+from sqlite_handler import SQLiteHandler
+from interrogationLocale import InterrogationLocale
 
 
 
