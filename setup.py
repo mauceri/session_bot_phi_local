@@ -30,7 +30,6 @@ setup(
     description="Un robot qui vous veut du bien",
     packages=find_packages(),
     install_requires=[
-        "amicus_interfaces>=0.1.2",
         "requests>=2.31.0",
         "openai",
     ],
