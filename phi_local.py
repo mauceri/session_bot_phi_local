@@ -62,10 +62,8 @@ class Phi(IObserver):
     
 class Plugin(IPlugin):
     def __init__(self,observable:IObservable):
-
         self.__observable = observable
         self.phi = Phi(self.__observable)
-
         # Autres initialisations
         logger.info(f"********************** Observateur créé {self.phi.prefix()}")
         

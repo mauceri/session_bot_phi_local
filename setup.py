@@ -26,7 +26,6 @@ long_description = read_file(("README.md",))
 setup(
     name="phi_local",
     version='0.1.0',
-    url="https://github.com/mauceri/session_bot_phi_local",
     description="Un robot qui vous veut du bien",
     packages=find_packages(),
     install_requires=[
@@ -38,6 +37,4 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-
-
 )
