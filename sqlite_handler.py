@@ -13,7 +13,6 @@ class SQLiteHandler:
         with self.conn:
             self.conn.execute('''CREATE TABLE IF NOT EXISTS transactions (
                                  utilisateur TEXT,
-                                 salon TEXT,
                                  transaction_id INTEGER PRIMARY KEY,
                                  date_question TEXT,
                                  question TEXT,
@@ -36,39 +35,39 @@ class SQLiteHandler:
         with sqlite3.connect(self.db_path) as conn:
             conn.execute('DROP TABLE IF EXISTS contexte')
 
-    def ajout_transaction(self, utilisateur, salon, date_question, question, date_reponse, reponse):
+    def ajout_transaction(self, utilisateur, date_question, question, date_reponse, reponse):
         with self.conn:
             date_question = datetime.now().isoformat()
-            self.conn.execute('INSERT INTO transactions (utilisateur, salon, date_question, question, date_reponse, reponse) VALUES (?, ?, ?, ?, ?, ?)',
-                              (utilisateur, salon, date_question, question, date_reponse, reponse, )) 
+            self.conn.execute('INSERT INTO transactions (utilisateur, date_question, question, date_reponse, reponse) VALUES (?, ?, ?, ?, ?, ?)',
+                              (utilisateur, date_question, question, date_reponse, reponse, )) 
             
 
-    def ajout_question(self, utilisateur, salon, question):
+    def ajout_question(self, utilisateur, question):
         with self.conn:
             date_question = datetime.now().isoformat()
-            ret = self.conn.execute('INSERT INTO transactions (utilisateur, salon, date_question, question) VALUES (?, ?, ?, ?)',
-                              (utilisateur, salon, date_question, question))
+            ret = self.conn.execute('INSERT INTO transactions (utilisateur, date_question, question) VALUES (?, ?, ?)',
+                              (utilisateur, date_question, question))
             return ret
 
-    def modification_reponse(self, utilisateur, salon, transaction_id, reponse):
+    def modification_reponse(self, utilisateur, transaction_id, reponse):
         with self.conn:
             date_reponse = datetime.now().isoformat()
             if reponse == None:
                 reponse = "" 
-            ret = self.conn.execute('UPDATE transactions SET date_reponse = ?, reponse = ? WHERE utilisateur = ? AND salon = ? AND transaction_id = ?',
-                              (date_reponse, reponse, utilisateur, salon, transaction_id,))
+            ret = self.conn.execute('UPDATE transactions SET date_reponse = ?, reponse = ? WHERE utilisateur = ? AND transaction_id = ?',
+                              (date_reponse, reponse, utilisateur, transaction_id,))
             return ret
 
-    def remove_transaction(self, utilisateur, salon, transaction_id):
+    def remove_transaction(self, utilisateur, transaction_id):
         with self.conn:
-            ret = self.conn.execute('DELETE FROM transactions WHERE utilisateur = ? AND salon = ? AND transaction_id = ?',
-                              (utilisateur, salon, transaction_id,))
+            ret = self.conn.execute('DELETE FROM transactions WHERE utilisateur = ? AND transaction_id = ?',
+                              (utilisateur, transaction_id,))
             return ret
         
-    # def remove_transaction(self, utilisateur, salon):
+    # def remove_transaction(self, utilisateur):
     #     with self.conn:
-    #         ret = self.conn.execute('DELETE FROM transactions WHERE utilisateur = ? AND salon = ?',
-    #                           (utilisateur, salon, ))
+    #         ret = self.conn.execute('DELETE FROM transactions WHERE utilisateur = ?,
+    #                           (utilisateur, ))
     #         return ret
 
     
@@ -86,9 +85,9 @@ class SQLiteHandler:
             self.conn.commit()
             return ret
             
-    def historique(self, utilisateur, salon, n):
+    def historique(self, utilisateur, n):
         with self.conn:
-            cursor = self.conn.execute('''SELECT * FROM transactions WHERE utilisateur = ? AND salon = ? ORDER BY transaction_id  DESC LIMIT ?''', (utilisateur, salon, n,))
+            cursor = self.conn.execute('''SELECT * FROM transactions WHERE utilisateur = ?  ORDER BY transaction_id  DESC LIMIT ?''', (utilisateur, n,))
             transactions = cursor.fetchall()
             
             # Convertir les transactions en une liste de dictionnaires pour une meilleure lisibilité

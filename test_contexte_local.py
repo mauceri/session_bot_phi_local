@@ -1,28 +1,31 @@
 import re
 from typing import List
 import sys
-from interrogationLocale import InterrogationLocale
 from sqlite_handler import SQLiteHandler
 import time
+import os
 
-sqliteh = SQLiteHandler(db_path="./perroquet_db/test_context.sqlite")
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from interrogationLocale import InterrogationLocale
+
+sqliteh = SQLiteHandler(db_path="./test_context.sqlite")
 il = InterrogationLocale(db_path=sqliteh.db_path)
 
 
-def pour_LLM(utilisateur:str,salon:str,question:str):
-    print(f"Question de {utilisateur} du salon {salon}: {question}")
-    transaction_id = il.sqliteh.ajout_question(utilisateur, salon,question).lastrowid
+def pour_LLM(utilisateur:str,question:str):
+    print(f"Question de {utilisateur} : {question}")
+    transaction_id = il.sqliteh.ajout_question(utilisateur, question).lastrowid
     print(f"L'id de la transaction pour la question {question} est {transaction_id}")
-            
+
     try:
-        reponse = il.interroge_llm(utilisateur, salon,question);
+        reponse = il.interroge_llm(utilisateur, question);
         print(f"reponse = {reponse}")
         r = reponse['choices'][0]['message']['content']
         #r = reponse.choices[0].message.content
         print(f"Voici la réponse: {r}")
     except BaseException as e:
         print(f"Quelque chose n'a pas fonctionné au niveau de l'interrogation de Mixtral {e}")
-        il.sqliteh.remove_transaction(transaction_id)
+        il.sqliteh.remove_transaction(utilisateur,transaction_id)
         reponse = None
  
 def allonzy(lignes:List[str]):
@@ -33,7 +36,7 @@ def allonzy(lignes:List[str]):
         utilisateur = ligne[0]
         salon = ligne[1]
         message = ' '.join(l[2:])
-        pour_LLM(utilisateur, salon, message)
+        pour_LLM(utilisateur, message)
     print(f"Durée = {time.time() - stime}")
 
 if __name__ == "__main__":

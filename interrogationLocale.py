@@ -2,18 +2,18 @@ import logging
 import requests
 import json
 from datetime import datetime
-from .sqlite_handler import SQLiteHandler
+from sqlite_handler import SQLiteHandler
 import os
+import sys
 
 class InterrogationLocale:
     def __init__(self,
-                 db_path: str = 'interrogation_mixtral.sqlite',
+                 db_path: str = 'interrogation_phi.sqlite',
                  profondeur_historique: int = 6,
-                 url: str = "http://100.90.227.83:8000/v1",  # Nouvelle URL
+                 url: str = "http://100.90.227.83:8080/v1",  # Nouvelle URL
                  model_name="Phi-3.5-mini-instruct-Q6_K.gguf",
                  instructions_initiales={"role": "system", "content": "Vous êtes un robot de discussion générale. Vos réponses sont concises, elles ne dépassent pas 500 mots, mais restent informatives."},
                  ):
-        
         self.db_path = db_path
         self.sqliteh = SQLiteHandler(self.db_path)
         self.profondeur_historique = profondeur_historique
@@ -29,23 +29,23 @@ class InterrogationLocale:
                     key, value = line.strip().split('=', 1)
                     os.environ[key] = value
 
-    def construction_contexte_initial(self,utilisateur:str="kiki", salon:str="caramba") :
+    def construction_contexte_initial(self,utilisateur:str="kiki") :
         self.sqliteh.remove_all_transactions()
-        transaction_id = self.sqliteh.ajout_question(utilisateur, salon,"Qui était Louis XIV de France").lastrowid
+        transaction_id = self.sqliteh.ajout_question(utilisateur, "Qui était Louis XIV de France").lastrowid
         #print(f"L'id de la transaction pour la question Qui était Louis XIV de France est {transaction_id}")
-        self.sqliteh.modification_reponse(utilisateur, salon, transaction_id,"Un roi de France")
+        self.sqliteh.modification_reponse(utilisateur, transaction_id,"Un roi de France")
         
-        transaction_id = self.sqliteh.ajout_question(utilisateur, salon,"Qui était Charles Baudelaire").lastrowid
+        transaction_id = self.sqliteh.ajout_question(utilisateur, "Qui était Charles Baudelaire").lastrowid
         #print(f"L'id de la transaction pour la question Qui était Charles Baudelaire est {transaction_id}")
-        self.sqliteh.modification_reponse(utilisateur, salon, transaction_id,"Un poète Français")
-        #for transaction in self.sqliteh.historique(utilisateur, salon,self.profondeur_historique):
+        self.sqliteh.modification_reponse(utilisateur, transaction_id,"Un poète Français")
+        #for transaction in self.sqliteh.historique(utilisateur, self.profondeur_historique):
         #    print(f"*************transaction {transaction}")
 
-    def historique_et_question_formatés(self, utilisateur: str = "kiki", salon: str = "caramba"):
+    def historique_et_question_formatés(self, utilisateur: str = "kiki"):
         contexte = [self.instructions_initiales]
 
         logging.info(f"°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°° profondeur {self.profondeur_historique}")
-        h = self.sqliteh.historique(utilisateur, salon, self.profondeur_historique)
+        h = self.sqliteh.historique(utilisateur,  self.profondeur_historique)
         logging.info(f"°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°° res h {h}")
         for transaction in h:
             contexte.append({"role": "user", "content": transaction['question']})
@@ -53,11 +53,11 @@ class InterrogationLocale:
                 contexte.append({"role": "assistant", "content": transaction['reponse']})
         return contexte
 
-    def interroge_llm(self, utilisateur, salon, question):
+    def interroge_llm(self, utilisateur, question):
         print(f"Interroge {self.model_name} {question}")
         logging.info(f"L'utilisateur {utilisateur} pose à {self.model_name} la question {question}")
         try:
-            qf = self.historique_et_question_formatés(utilisateur, salon)
+            qf = self.historique_et_question_formatés(utilisateur)
         except BaseException as e:
             print(f"Échec construction question {e}")
             logging.info(f"Échec construction question {e}")
@@ -90,7 +90,7 @@ class InterrogationLocale:
                 logging.info(f"Échec interrogation locale : {response.status_code}, {response.text}")
                 return None
         except BaseException as e:
-            print(f"Échec interrogation Mixtral {e}")
+            print(f"Échec interrogation Phi {e}")
             logging.info(f"Échec interrogation Mixtral {e}")
             return None
 
