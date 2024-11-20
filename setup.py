@@ -24,7 +24,7 @@ long_description = read_file(("README.md",))
 
 
 setup(
-    name="phi_local",
+    name="phi",
     version='0.1.0',
     description="Un robot qui vous veut du bien",
     packages=find_packages(),
