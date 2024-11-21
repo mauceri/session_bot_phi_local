@@ -52,7 +52,7 @@ class Phi(IObserver):
 
     async def notify(self,msg:str,to:str,attachments):
         logger.info(f"***************************** L'utilisateur {to} a écrit {msg}")
-        reponse = self.pour_llm(msg)
+        reponse = self.pour_llm(msg,to,attachments=)
         if reponse == None:
             reponse = "Une erreur s'est produite lors de l'interrogation du LLM"
         await self.__observable.notify("Coco a dit : "+reponse, to, attachments)
