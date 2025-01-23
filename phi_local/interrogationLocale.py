@@ -10,9 +10,9 @@ class InterrogationLocale:
     def __init__(self,
                  db_path: str = 'interrogation_phi.sqlite',
                  profondeur_historique: int = 6,
-                 url: str = "http://100.90.227.83:8080/v1",  # Nouvelle URL
-                 model_name="Phi-3.5-mini-instruct-Q6_K.gguf",
-                 instructions_initiales={"role": "system", "content": "Vous êtes un robot de discussion générale. Vos réponses sont concises, elles ne dépassent pas 500 mots, mais restent informatives."},
+                 url: str = "http://sanroque:11434",  # Nouvelle URL
+                 model_name="phi3.5",
+                 instructions_initiales={"role": "system", "content": "Vous êtes un assistant efficace. Vos réponses sont aussi brèves que possible."},
                  ):
         self.db_path = db_path
         self.sqliteh = SQLiteHandler(self.db_path)
@@ -75,12 +75,13 @@ class InterrogationLocale:
         data = {
             "model": self.model_name,
             "messages": qf,
-            "temperature": 0.7
+            "options": {"num_gpu": 32}, #, "ctx-size": 1024},
+            "stream": False
         }
 
         try:
             # Appel à la nouvelle URL avec requests.post
-            response = requests.post(f"{self.url}/chat/completions", headers=headers, data=json.dumps(data))
+            response = requests.post(f"{self.url}/api/chat", headers=headers, data=json.dumps(data))
 
             # Vérification de la réponse
             if response.status_code == 200:

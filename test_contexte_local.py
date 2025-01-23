@@ -1,12 +1,12 @@
 import re
 from typing import List
 import sys
-from sqlite_handler import SQLiteHandler
+from phi_local.sqlite_handler import SQLiteHandler
 import time
 import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from interrogationLocale import InterrogationLocale
+from phi_local.interrogationLocale import InterrogationLocale
 
 sqliteh = SQLiteHandler(db_path="./test_context.sqlite")
 il = InterrogationLocale(db_path=sqliteh.db_path)
@@ -20,7 +20,7 @@ def pour_LLM(utilisateur:str,question:str):
     try:
         reponse = il.interroge_llm(utilisateur, question);
         print(f"reponse = {reponse}")
-        r = reponse['choices'][0]['message']['content']
+        r = reponse['message']['content']
         #r = reponse.choices[0].message.content
         print(f"Voici la réponse: {r}")
     except BaseException as e:
