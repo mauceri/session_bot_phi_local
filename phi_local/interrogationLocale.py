@@ -91,6 +91,6 @@ class InterrogationLocale:
                 logging.info(f"Échec interrogation locale : {response.status_code}, {response.text}")
                 return None
         except BaseException as e:
-            logging.rrror(f"Échec interrogation locale {e}")
+            logging.error(f"Échec interrogation locale {e}")
             return None
 
