@@ -10,7 +10,8 @@ class InterrogationLocale:
     def __init__(self,
                  db_path: str = 'interrogation_phi.sqlite',
                  profondeur_historique: int = 6,
-                 url: str = "http://sanroque:11434",  # Nouvelle URL
+#                 url: str = "http://sanroque:11434",  # Nouvelle URL
+                 url: str = "http://host.docker.internal:11434",  # Nouvelle URL
                  model_name="phi3.5",
                  instructions_initiales={"role": "system", "content": "Vous êtes un assistant efficace. Vos réponses sont aussi brèves que possible."},
                  ):
