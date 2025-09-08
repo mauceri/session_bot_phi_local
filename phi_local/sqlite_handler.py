@@ -97,6 +97,15 @@ class SQLiteHandler:
                 transactions_liste.append(dict(zip(colonnes, transaction)))
             
             return transactions_liste[::-1]
+    
+    def get_contexte(self, utilisateur):
+        with self.conn:
+            cursor = self.conn.execute('SELECT contexte FROM contexte WHERE utilisateur = ?', (utilisateur,))
+            contexte_json = cursor.fetchone()
+            if contexte_json:
+                return json.loads(contexte_json[0])
+            else:
+                return None 
 
     def __del__(self):
         self.conn.close()

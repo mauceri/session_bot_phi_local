@@ -10,9 +10,9 @@ class InterrogationLocale:
     def __init__(self,
                  db_path: str = 'interrogation_phi.sqlite',
                  profondeur_historique: int = 6,
-#                 url: str = "http://sanroque:11434",  # Nouvelle URL
-                 url: str = "http://host.docker.internal:11434",  # Nouvelle URL
-                 model_name="phi3.5",
+#                 url: str = "http://host.docker.internal:11434",  # Ollama
+                 url: str = "http://host.docker.internal:8080",  # llama.cpp
+                 model_name="phi4",
                  instructions_initiales={"role": "system", "content": "Vous êtes un assistant efficace. Vos réponses sont aussi brèves que possible."},
                  ):
         self.db_path = db_path
@@ -54,7 +54,7 @@ class InterrogationLocale:
                 contexte.append({"role": "assistant", "content": transaction['reponse']})
         return contexte
 
-    def interroge_llm(self, utilisateur, question):
+    def interroge_llm_ollama(self, utilisateur, question):
         print(f"Interroge {self.model_name} {question}")
         logging.info(f"L'utilisateur {utilisateur} pose à {self.model_name} la question {question}")
         try:
@@ -95,3 +95,50 @@ class InterrogationLocale:
             logging.error(f"Échec interrogation locale {e}")
             return None
 
+    #version llama.cpp
+    def interroge_llm(self, utilisateur, question):
+        print(f"Interroge {self.model_name} {question}")
+        logging.info(f"L'utilisateur {utilisateur} pose à {self.model_name} la question {question}")
+        try:
+            qf = self.historique_et_question_formatés(utilisateur)  # liste de messages [{role, content}]
+        except BaseException as e:
+            print(f"Échec construction question {e}")
+            logging.info(f"Échec construction question {e}")
+            return None
+
+        headers = {
+            "Content-Type": "application/json",
+            # "Authorization": f"Bearer {self.api_key}",  # si vous en avez besoin
+        }
+
+        logging.info(f"°°°°°°°°°°°°°°°°°°°°°°°°°°°°°° qf = {qf}")
+
+        # llama.cpp OpenAI-compatible: /v1/chat/completions
+        payload = {
+            "model": self.model_name,     # facultatif si le serveur a un modèle par défaut
+            "messages": qf,               # même format qu’Ollama
+            "stream": False,
+            # Ajoutez ici vos paramètres supportés par llama.cpp si besoin:
+            # "temperature": 0.2, "top_p": 0.95, "max_tokens": 512, "stop": ["</s>"], "seed": 1234, etc.
+        }
+
+        try:
+            resp = requests.post(
+                f"{self.url}/v1/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=300
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                # Si vous souhaitez rester 100% backward-compatible, retournez le JSON brut :
+                return data
+                # Sinon, pour ne renvoyer que le texte :
+                # return "".join(ch.get("message", {}).get("content", "") for ch in data.get("choices", []))
+            else:
+                print(f"Échec interrogation locale : {resp.status_code}, {resp.text}")
+                logging.info(f"Échec interrogation locale : {resp.status_code}, {resp.text}")
+                return None
+        except BaseException as e:
+            logging.error(f"Échec interrogation locale {e}")
+            return None
