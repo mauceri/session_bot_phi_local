@@ -39,8 +39,9 @@ class Phi(IObserver):
             stime = time.time()
             reponse = self.il.interroge_llm(utilisateur, question);
             logger.info(f"Réponse du LLM \"{reponse}\"")
-            #reponse = reponse.choices[0].message.content
-            reponse = reponse['message']['content']
+            logger.info(f"***************************** Réponse du LLM \"{.choices[0]}\"")
+            reponse = reponse.choices[0].message.content
+            #reponse = reponse['message']['content']
             logger.info(f"Voici la réponse: {reponse}")
             self.il.sqliteh.modification_reponse(utilisateur, transaction_id,reponse)
         except BaseException as e:
