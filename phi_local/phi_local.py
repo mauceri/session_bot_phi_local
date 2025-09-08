@@ -39,7 +39,7 @@ class Phi(IObserver):
             stime = time.time()
             reponse = self.il.interroge_llm(utilisateur, question);
             logger.info(f"Réponse du LLM \"{reponse}\"")
-            logger.info(f"***************************** Réponse du LLM \"{.choices[0]}\"")
+            logger.info(f"***************************** Réponse du LLM \"{reponse.choices[0]}\"")
             reponse = reponse.choices[0].message.content
             #reponse = reponse['message']['content']
             logger.info(f"Voici la réponse: {reponse}")
